@@ -18,8 +18,12 @@ import { getMintApprovalSignature } from "../service/utils";
 const { SERVER_URL, LOCAL_URL } = require("../conf");
 
 const OneRepFileModule = (props) => {
+var filename1 ="";
 
+var pathip = "";
+  const client = create('https://ipfs.infura.io:5001/api/v0')
   const [fileUrl, setFileUrl] = useState('')
+  const [filename, setfilename] = useState('')
   const [show, setShow] = useState(false);
   const [showSucces, setshowSucces] = useState(false);
   const [repfiles, setRepFiles] = useState([]);
@@ -107,10 +111,10 @@ const OneRepFileModule = (props) => {
     setTotalMint(reputation);
     axios
       .post(SERVER_URL + "/files/add", {
-        filename: ipfsName,
-        ipfsuri: ipfsPath,
+        filename: filename1,
+        ipfsuri: pathip,
         status: true,
-        reputation: reputation,
+        reputation: 10,
         data: values,
         master: localStorage.getItem("wallet"),
       })
@@ -129,68 +133,112 @@ const OneRepFileModule = (props) => {
   };
   getOneRepFile();
 
-  const onSubmitHandler = (e) => {
-    e.preventDefault();
-    const files = e.target[0].files;
-    if (!files || files.length === 0) {
-      return alert("No files selected");
-    }
-    setFile(files[0]);
-    let prefix = "data__" + Date.now() + "__";
-    setipfsName(files[0].name);
-    setipfsPath(prefix + files[0].name);
-    UploadService.upload(files[0], prefix, (event) => {
-      setProgress(Math.round((100 * event.loaded) / event.total));
-    })
-      .then((response) => {
-        alert(response.data.message);
-        Papa.parse(files[0], {
-          header: true,
-          skipEmptyLines: true,
-          complete: (results) => {
-            const rowsArray = [];
-            const valuesArray = [];
+  async function  onSubmitHandler (e) {
+    // e.preventDefault();
+    // const files = e.target.files[0].name;
+    // console.log("file name present inside", files)
+    // console.log("file name ",files[0].name);
+    // filename = files[0].name
+    try{ 
+      console.log("show filename",filename1)
+      const added = await client.add(filename1)
+      console.log("edit path", added)
+      const url = `https://ipfs.infura.io/ipfs/${added.path}`
+      pathip = url
+      //  updateFileUrl(url)
+      console.log("url name" , url)
+      }
+      catch (error) {
+        console.log('Error uploading file: ', error)
+      }  
+      
+   
+    //setfilename(file[0].name);
+    //console.log("final file name", filename)
+    //console.log("ipfs name ", ipfsName)
+    // const files = e.target[0].files;
+    // if (!files || files.length === 0) {
+    //   return alert("No files selected");
+    // }
+    // setFile(files[0]);
+    // let prefix = "data__" + Date.now() + "__";
+    // setipfsName(files[0].name);
+    // setipfsPath(prefix + files[0].name);
+    // UploadService.upload(files[0], prefix, (event) => {
+    //   setProgress(Math.round((100 * event.loaded) / event.total));
+    // })
+    //   .then((response) => {
+    //     alert(response.data.message);
+    //     Papa.parse(files[0], {
+    //       header: true,
+    //       skipEmptyLines: true,
+    //       complete: (results) => {
+    //         const rowsArray = [];
+    //         const valuesArray = [];
 
-            setCSVData(results.data);
+    //         setCSVData(results.data);
 
-            // Iterating data to get column name and their values
-            let rep = 0;
-            results.data.map((d) => {
-              rowsArray.push(Object.keys(d));
-              valuesArray.push(Object.values(d));
-              rep += parseInt(d.received);
-            });
-            setReputation(rep);
-            // Parsed Data Response in array format
-            setParsedData(results.data);
+    //         // Iterating data to get column name and their values
+    //         let rep = 0;
+    //         results.data.map((d) => {
+    //           rowsArray.push(Object.keys(d));
+    //           valuesArray.push(Object.values(d));
+    //           rep += parseInt(d.received);
+    //         });
+    //         setReputation(rep);
+    //         // Parsed Data Response in array format
+    //         setParsedData(results.data);
 
-            // Filtered Column Names
-            setTableRows(rowsArray[0]);
+    //         // Filtered Column Names
+    //         setTableRows(rowsArray[0]);
 
-            // Filtered Values
-            setValues([...values, ...valuesArray]);
-          },
-        });
+    //         // Filtered Values
+    //         setValues([...values, ...valuesArray]);
+    //       },
+    //     });
 
-        // this.setState({
-        // message: response.data.message,
-        // });
-        // return UploadService.getFiles("data");
-      })
-      .then((files) => {
-        // this.setState({
-        // fileInfos: files.data,
-        // });
-      })
-      .catch(() => {
-        this.setState({
-          progress: 0,
-          message: "Could not upload the file!",
-          currentFile: undefined,
-        });
-      });
+    //     // this.setState({
+    //     // message: response.data.message,
+    //     // });
+    //     // return UploadService.getFiles("data");
+    //   })
+    //   .then((files) => {
+    //     // this.setState({
+    //     // fileInfos: files.data,
+    //     // });
+    //   })
+    //   .catch(() => {
+    //     this.setState({
+    //       progress: 0,
+    //       message: "Could not upload the file!",
+    //       currentFile: undefined,
+    //     });
+    //   });
   };
+  async function handleChange(e)  {
+    filename1= e.target.files[0].name;
+    console.log("filename con", filename1)
+  //   e.preventDefault();
+  //  // console.log(`Selected file - ${e.target.files[0].name}`);
+  //   const files = e.target[0].files.name;
+  //   console.log("file name present inside", files);
+  //   console.log("file name ",files[0].name);
+  //   filename = files[0].name
+  //   try{ 
+  //     const added = await client.add(file)
+  //     console.log("edit path", added)
+  //     const url = `https://ipfs.infura.io/ipfs/${added.path}`
+  //     pathip = url
+  //     //  updateFileUrl(url)
+  //     console.log("url name" , url)
+  //     }
+  //     catch (error) {
+  //       console.log('Error uploading file: ', error)
+  //     }  
+      
+  // }
 
+  }
   const step1Content = (
     <div>
       <br />
@@ -218,18 +266,38 @@ const OneRepFileModule = (props) => {
                         </div>
                     </div> }
         
-            <FileUpload setUrl={setFileUrl} />
+ {/* <form>
+
+<div bgcolor = "white"><input type="file" onChange={handleChange} /><br/><br/><br/></div>
+  
+        
+{/* <div><input type="submit" value="upload" /></div> */}
+
+
+        {/* </form> */} 
+  {/* <label><h1>Please select the filename</h1></label> */}
+        <input type="file" onChange={handleChange} />
+        <input type="submit" value="upload" onSubmit={onSubmitHandler} />
+
+            {/* <FileUpload  setUrl={setFileUrl} onSubmit={handleChange} />
             FileUrl : <a
                 href={fileUrl}
                 target='_blank'
                 rel='noopener noreferrer'
             >
                 {fileUrl}
-            </a>
-       {console.log("file upload",fileUrl)}
+                {pathip= fileUrl} */}
+            {/* </a> */}
+       {
+       console.log("file upload",fileUrl)}
+
+       {
+      //    console.log ("my value",document.getElementByxpath("/html/body/div[3]/div/div/div/div/div/div[1]/div/div[2]/form/div/h5"))
+       
+       }
         
     )
-
+    
           {/* </form> */}
         </>
       }

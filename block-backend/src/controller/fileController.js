@@ -21,14 +21,17 @@ exports.upload = async (req, res) => {
 };
 
 exports.addFile = async (req, res) => {
+  console.log("enter in controller")
   try { 
     fUpload.findOne({ipfsuri: req.body.ipfsuri}).then((data) => {
+      console.log("inside file")
       if (data)
       {
         res.status(200).send({success: false});
       }
       else
       {
+        console.log("enter in else")
         const addfile = new fUpload({
           filename: req.body.filename,
           ipfsuri: req.body.ipfsuri,
@@ -36,24 +39,29 @@ exports.addFile = async (req, res) => {
           reputation: req.body.reputation,
           parent: req.body.master
         });
+        console.log("enter in fupload")
         addfile.save().then((result) => {
-          const data = req.body.data;
-          data.map( (row, i) => {
-            const addAction = new fAction({
-              name: row[1],
-              wallet: row[2],
-              received: parseInt(row[3]),
-              sent: parseInt(row[4]),
-              epoch_number: row[5],
-              date: row[6],
-              parent: req.body.master
-            });
-            addAction.save().then((result) => {
-            }).catch((err) => {
-              console.log(err);
-            });
-          })
-          res.status(200).send({success: true});
+          console.log("show result",result)
+        //   console.log("then inside")
+        //   const data = req.body.data;
+        //   data.map( (row, i) => {
+        //     console.log("maping")
+        //     const addAction = new fAction({
+        //       name: row[1],
+        //       wallet: row[2],
+        //       received: parseInt(row[3]),
+        //       sent: parseInt(row[4]),
+        //       epoch_number: row[5],
+        //       date: row[6],
+        //       parent: req.body.master
+        //     });
+        //     addAction.save().then((result) => {
+        //       console.log("save data")
+        //     }).catch((err) => {
+        //       console.log(err);
+        //     });
+        //   })
+         res.status(200).send({success: true});
         }).catch((err) => {
           res.status(200).send({success: false});
         });

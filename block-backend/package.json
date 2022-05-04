@@ -23,6 +23,7 @@
     "body-parser": "^1.18.2",
     "connect-flash": "^0.1.1",
     "cors": "^2.8.5",
+    "course": "0.0.1",
     "dotenv": "^10.0.0",
     "ejs": "~2.6.1",
     "express": "^4.17.1",
