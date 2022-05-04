@@ -80,6 +80,8 @@ exports.getUserList = async(req, res) => {
 exports.getOneRepBoard  = async(req, res) => {
     console.log("enter in api")
     const result = {};
+    console.log("request master",req.body.master)
+    console.log("request sort",req.body.sort)
     fAction.aggregate([{ $match : { parent : req.body.master }}, {$group:{_id:"$wallet", name : { $first: '$name' }, sum:{$sum: "$received"}}}, {$sort: req.body.sort}]).then((users) => {
         result.users = users;
         console.log("users list", users)
@@ -90,13 +92,18 @@ exports.getOneRepBoard  = async(req, res) => {
                 result.isAdmin = user.isAdmin;
                 if (user.isAdmin == false)  
                 {
+                    console.log("inside if")
                     res.status(200).send(result);
                 }
                 else{
                     // logic to get all the DAO
-
+                    console.log("inside else if Admin")
+                    User.find().then((users) => {
+                        console.log("Users", users)
+                            res.status(200).send(users);
+                    });
                 }
-                res.status(200).send(result);
+               // res.status(200).send(result);
             });
         });
     });
