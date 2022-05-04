@@ -1,11 +1,9 @@
+// 
 const fs = require('fs');
 const uploadFile = require("../middleware/upload");
 const fUpload  = require('../../models/upload');
 const fAction  = require('../../models/action');
 const ipfsAPI = require('ipfs-api');
-const { create } = require('ipfs-http-client');
-const fetch = require("node-fetch");
-//const ipfs = require('ipfs');
 
 exports.upload = async (req, res) => {
   try { 
@@ -22,65 +20,16 @@ exports.upload = async (req, res) => {
     });
   }
 };
-async function ipfsClient(){
-  const ipfs = await create(
-    {
-      host:"ipfs.infura.io",
-      port:5001,
-      protocol:"https"
-    }
-  );
-  return ipfs
-}
-async function processData(hash){
 
-  let ipfs =  await ipfsClient();
-  let asyncitr=ipfs.cat(hash)
-  for await(const itr of asyncitr){
-     console.log("the itr",itr)
-     let data = Buffer.from(itr).toString()
-     console.log("The processed data:",data)
-  }
-
-}
-
-async function getData(uri) {
-  const response = await fetch(uri, {
-    headers : { 
-      'content-type': 'text/csv;charset=UTF-8'
-     }
-    })
-    .catch(function() {
-      console.log("error");
-  }); 
-  
-  
-  const data = await response.text();
-   console.log(data);
-  
-   const rows = data.split((/\r?\n|\r/)).slice(1);
-   console.log(rows[1]);
-  //  rows.forEach(elt => {
-  //          const colums = elt.split(';');
-  //          const titre = colums[0];
-  //          // console.log(titre);
-  //          DATA_ARRAY.push(titre);
-  //  })
-  
-  //console.log(DATA_ARRAY);
-    }
 exports.addFile = async (req, res) => {
-  console.log("enter in controller")
   try { 
     fUpload.findOne({ipfsuri: req.body.ipfsuri}).then((data) => {
-      console.log("inside file")
       if (data)
       {
         res.status(200).send({success: false});
       }
       else
       {
-        console.log("enter in else")
         const addfile = new fUpload({
           filename: req.body.filename,
           ipfsuri: req.body.ipfsuri,
@@ -88,68 +37,24 @@ exports.addFile = async (req, res) => {
           reputation: req.body.reputation,
           parent: req.body.master
         });
-        console.log("enter in fupload")
-        console.log("The length of string ", req.body.ipfsuri.length)
-        console.log("Substring ", req.body.ipfsuri.substr(28,74))
-        const fileHash = req.body.ipfsuri.substr(28,req.body.ipfsuri.length)
-        getData(req.body.ipfsuri)
-       // processData(fileHash)
-//        fetch(req.body.ipfsuri, {
-//     method: 'GET',
-//     headers: {
-//       'Content-Type': 'text/csv',
-//     },
-//   })
-//   .then((response) => response.blob())
-//   .then((blob) => {
-//     console.log("blob",blob)
-//     let reader = new FileReader();
-// reader.readAsDataURL(blob); // converts the blob to base64 and calls onload
-
-// reader.onload = function() {
-//   console.log("reader result")
-//   link.href = reader.result; // data url
-//   link.click();
-// };
-    // Create blob link to download
-    // const url = window.URL.createObjectURL(
-    //   new Blob([blob]),
-    // );
-    // const link = document.createElement('a');
-    // link.href = url;
-    // link.setAttribute(
-    //   'download',
-    //   `FileName.pdf`,
-    // );
- // });
-        // IPFS.files.get(fileHash, function (err, files) {
-        //   files.forEach((file) => {
-        //       console.log(file.path)
-        //       console.log("File content >> ",file.content.toString('utf8'))
-        //   })
-      
         addfile.save().then((result) => {
-         // console.log("show result",result)
-        //   console.log("then inside")
-        //   const data = req.body.data;
-        //   data.map( (row, i) => {
-        //     console.log("maping")
-        //     const addAction = new fAction({
-        //       name: row[1],
-        //       wallet: row[2],
-        //       received: parseInt(row[3]),
-        //       sent: parseInt(row[4]),
-        //       epoch_number: row[5],
-        //       date: row[6],
-        //       parent: req.body.master
-        //     });
-        //     addAction.save().then((result) => {
-        //       console.log("save data")
-        //     }).catch((err) => {
-        //       console.log(err);
-        //     });
-        //   })
-         res.status(200).send({success: true});
+          const data = req.body.data;
+          data.map( (row, i) => {
+            const addAction = new fAction({
+              name: row[1],
+              wallet: row[2],
+              received: parseInt(row[3]),
+              sent: parseInt(row[4]),
+              epoch_number: row[5],
+              date: row[6],
+              parent: req.body.master
+            });
+            addAction.save().then((result) => {
+            }).catch((err) => {
+              console.log(err);
+            });
+          })
+          res.status(200).send({success: true});
         }).catch((err) => {
           res.status(200).send({success: false});
         });
