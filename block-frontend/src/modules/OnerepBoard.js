@@ -24,7 +24,9 @@ const OneRepBoardModule = (props) => {
         sort: sortOption,
       })
       .then((response) => {
-        setBoardData(response.data);
+        console.log("Response from backend",response)
+        setBoardData(response.data.users);
+        console.log("Board data", boardData)
       });
   };
 
@@ -39,6 +41,7 @@ const OneRepBoardModule = (props) => {
   };
 
   const handleDropDown = () => {
+    console.log("Handle Drop Down")
     getOneRepBoard();
   };
 
@@ -83,7 +86,7 @@ const OneRepBoardModule = (props) => {
           Select DAO
         </Dropdown.Toggle>
         <Dropdown.Menu>
-          <Dropdown.Item href="#/action-1">Action</Dropdown.Item>
+          <Dropdown.Item onClick={handleDropDown}>Action</Dropdown.Item>
           <Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
           <Dropdown.Item href="#/action-3">Something else</Dropdown.Item>
         </Dropdown.Menu>
