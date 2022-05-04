@@ -18,15 +18,17 @@ import { getMintApprovalSignature } from "../service/utils";
 const { SERVER_URL, LOCAL_URL } = require("../conf");
 
 const OneRepFileModule = (props) => {
-var filename1 ="";
+  var filename1 ='';
 
-var pathip = "";
+  var pathip = '';
   const client = create('https://ipfs.infura.io:5001/api/v0')
-  const [fileUrl, setFileUrl] = useState('')
-  const [filename, setfilename] = useState('')
+  const [fileUrl, setFileUrl] = useState('');
+  const [fname, setfname] = useState('test');
+  const [fpath, setfpath] = useState('test');
   const [show, setShow] = useState(false);
   const [showSucces, setshowSucces] = useState(false);
   const [repfiles, setRepFiles] = useState([]);
+
 
   const [progress, setProgress] = useState(0);
   const [ipfsPath, setipfsPath] = useState("");
@@ -67,7 +69,8 @@ var pathip = "";
   const [step, setStep] = useState(0);
 
   let web3 = null;
-
+  
+ 
   const InitWeb3 = async () => {
     if (window.ethereum) {
       web3 = new Web3(window.ethereum);
@@ -106,13 +109,17 @@ var pathip = "";
   }, [step]);
 
   const handleSubmit = () => {
+    console.log("fname",fname)
+    console.log("fpath",fpath)
     setShow(false);
     console.log("handler function")
     setTotalMint(reputation);
+    console.log("The filename is",filename1)
+    console.log("The ipfs path is",pathip)
     axios
       .post(SERVER_URL + "/files/add", {
-        filename: filename1,
-        ipfsuri: pathip,
+        filename: fname,
+        ipfsuri: fpath,
         status: true,
         reputation: 10,
         data: values,
@@ -139,14 +146,16 @@ var pathip = "";
     // console.log("file name present inside", files)
     // console.log("file name ",files[0].name);
     // filename = files[0].name
+    console.log("Inside on submit handler")
     try{ 
       console.log("show filename",filename1)
       const added = await client.add(filename1)
       console.log("edit path", added)
       const url = `https://ipfs.infura.io/ipfs/${added.path}`
+      setfpath(url)
       pathip = url
       //  updateFileUrl(url)
-      console.log("url name" , url)
+      console.log("url name" , pathip)
       }
       catch (error) {
         console.log('Error uploading file: ', error)
@@ -217,6 +226,7 @@ var pathip = "";
   };
   async function handleChange(e)  {
     filename1= e.target.files[0].name;
+    setfname(filename1)
     console.log("filename con", filename1)
   //   e.preventDefault();
   //  // console.log(`Selected file - ${e.target.files[0].name}`);
@@ -277,8 +287,16 @@ var pathip = "";
         {/* </form> */} 
   {/* <label><h1>Please select the filename</h1></label> */}
         <input type="file" onChange={handleChange} />
-        <input type="submit" value="upload" onSubmit={onSubmitHandler} />
-
+        <br>
+        </br>
+        <br>
+        </br>
+        {/* <input type="submit" value="upload" onSubmit={onSubmitHandler} /> */}
+        <button value="Upload" onClick={onSubmitHandler}>Upload</button>
+        {/* <button value="hello!" onClick={e => alert(e.target.value)}> */}
+      {/* Click me!
+    </button> */}
+         
             {/* <FileUpload  setUrl={setFileUrl} onSubmit={handleChange} />
             FileUrl : <a
                 href={fileUrl}
