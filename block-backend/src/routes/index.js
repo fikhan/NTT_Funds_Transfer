@@ -15,6 +15,7 @@ let routes = (app) => {
 
   //user manage
   router.post("/users", userController.getUserList);
+  router.post("/users/loggedinuser",userController.getLoggedInUser)
   router.post('/users/register', userController.register);
   router.post('/users/login', userController.login);
   router.post("/users/update", userController.update);

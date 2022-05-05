@@ -17,6 +17,10 @@ exports.register = async (req, res) => {
     if (!req.body.dao) {
         errors.push({ text: 'Please Enter DAO address.' });
     }
+    if (!req.body.tokenaddress)
+    {
+        errors.push({text: 'Badge Address is required'});
+    }
     if (errors.length > 0) {
         res.status(200).send({success: false, error: errors});
     } else {
@@ -25,13 +29,17 @@ exports.register = async (req, res) => {
             if (user) {
                res.redirect(SERVER_URL + '/admin');
             } else {
+                console.log("The request is", req)
+                console.log("The token address", req.body.tokenaddress)
                 const user = new User({
                     username: req.body.username,
                     wallet: req.body.wallet,
                     badge: req.body.badge,
-                    dao: req.body.dao
+                    dao: req.body.dao,
+                    badgeAddress: req.body.tokenaddress
                 });
                 user.save().then((result) => {
+                    console.log("User Added", user)
                     res.redirect(SERVER_URL + '/admin');
                 }).catch((err) => {
                     res.status(200).send({success: false, error: err});
@@ -70,7 +78,13 @@ exports.logout = async(req,res)=>{
     req.logout();
     res.status(200).send({success: true});
 }
-
+exports.getLoggedInUser = async(req,res) => {
+    console.log("The user in the request is",req.body.user)
+    User.findOne({username: req.body.user}).then((user)=>{
+        console.log("The user is", user)
+        res.status(200).send(user)
+    })
+}
 exports.getUserList = async(req, res) => {
     User.find({parent: req.body.master}).then((users) => {
         res.status(200).send(users);

@@ -24,7 +24,7 @@ app.use(passport.session());
 
 global.__basedir = __dirname;
 var corsOptions = {
-  origin: SERVER_URL
+  origin: "*"
 };
 app.use(cors(corsOptions));
 const initRoutes = require("./src/routes");

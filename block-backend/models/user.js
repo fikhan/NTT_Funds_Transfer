@@ -62,6 +62,11 @@ const userSchema=new mongoose.Schema({
     created_at:{
         type:Date,
         default:Date.now()
+    },
+    badgeAddress:{
+        type:String,
+        required: true,
+        default: ''
     }
 });
 // userSchema.pre('save',function(next){
