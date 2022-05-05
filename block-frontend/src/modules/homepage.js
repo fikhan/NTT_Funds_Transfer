@@ -24,7 +24,9 @@ const HomePageModule = (props) => {
       // res[0] for fetching a first wallet
       window.ethereum
         .request({ method: "eth_requestAccounts" })
-        .then((res) => accountChangeHandler(res[0]));
+        .then((res) => {
+          accountChangeHandler(res[0])
+        });
     } else {
       alert("install metamask extension!!");
     }

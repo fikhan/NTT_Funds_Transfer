@@ -603,6 +603,22 @@ const OneRepFileModule = (props) => {
   const handleSubmit = () => {
     setShow(false);
     setTotalMint(reputation);
+    console.log("Inside submit")
+    console.log("Values contain", values)
+    console.log("logged in user",localStorage.getItem("username"))
+    let username = localStorage.getItem("username")
+    console.log("The username is", username)
+    axios.post(SERVER_URL + "/users/loggedinuser",{
+         user: username
+    }).then((response) =>{
+      console.log("The logged in user is", JSON.stringify(response))
+    })
+    values.map((v) => {
+
+      console.log("Value :",v)
+    
+    })
+    
     axios
       .post(SERVER_URL + "/files/add", {
         filename: ipfsName,
@@ -723,10 +739,11 @@ const OneRepFileModule = (props) => {
     </div>
   );
   const step2Content = (
-    <div id="step2">
+    <div id="step2" className="table-responsive">
       <br />
       <h5 className="text-center text-white">Verify the records</h5>
       <br />
+      {/* <Table responsive striped className="zl_transaction_list_table table"> */}
       <Table responsive striped className="zl_transaction_list_table table">
         <thead>
           <tr>

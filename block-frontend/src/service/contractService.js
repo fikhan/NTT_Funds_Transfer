@@ -1,7 +1,10 @@
-import { ABI, TESTNET_ADDRESS, MAINNET_ADDRESS } from "../shared/constants";
+import { checkResultErrors } from "ethers/lib/utils";
+import { ABI, TESTNET_ADDRESS, MAINNET_ADDRESS,bytecode } from "../shared/constants";
 import { getMintBatchApprovalSignature } from "./utils";
 
 let contract = null;
+let deployedContractAddress = null;
+let gas_price = '';
 
 let mainnetChainIDs = [1666600000, 1666600001, 1666600002, 1666600003];
 
@@ -17,9 +20,60 @@ const determineAddress = async (chainId) => {
   }
 };
 
+export const deployContract = async (web3) => {
+
+  console.log("Deploying....");
+  
+  const accounts = await web3.eth.getAccounts();
+  console.log("After getting accounts", accounts)
+  //console.log("bytecode",bytecode)
+  console.log("ABI : ",ABI)
+  web3.eth.getGasPrice().then((result) => {
+    gas_price=web3.utils.fromWei(result, 'ether');
+    console.log("gas price is: ",gas_price);
+  })
+
+  const result = await new web3.eth.Contract(ABI)
+    .deploy({ data: bytecode, arguments:[localStorage.getItem('wallet') , ''] })
+    .send({ from: accounts[0], gasPrice: gas_price });
+  
+  console.log("Contract deployed to", result.options.address);
+  return result.options.address;
+};
+// export const deployContract = async(web3) =>{
+
+// //   let deploy_contract = new web3.eth.Contract(JSON.parse(abi));
+
+// //   let payload = {
+// //     data: bytecode
+// // }
+
+// // let parameter = {
+// //   from: account,
+// //   gas: web3.utils.toHex(800000),
+// //   gasPrice: web3.utils.toHex(web3.utils.toWei('30', 'gwei'))
+// // }
+
+// // deploy_contract.deploy(payload).send(parameter, (err, transactionHash) => {
+// //   console.log('Transaction Hash :', transactionHash);
+// // }).on('confirmation', () => {}).then((newContractInstance) => {
+
+// //   deployedContractAddress = newContractInstance.options.address; 
+// //   console.log('Deployed Contract Address : ', newContractInstance.options.address);
+// // }) 
+
+// // return deployContractAddress
+
+// }
 export const initContract = async (web3, chainId) => {
   contract = new web3.eth.Contract(ABI, await determineAddress(chainId));
   return contract;
+};
+
+export const initContractAddress = async (web3) => {
+  contract = new web3.eth.Contract(ABI, await determineAddress(1666700000));
+
+  return contract.options.address;
 };
 
 export const getContractInstance = async () => {
