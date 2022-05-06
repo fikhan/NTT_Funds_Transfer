@@ -14,7 +14,9 @@ const WalletConnectModule = (props) => {
         setWallet(localStorage.getItem('wallet'));
     })
     
+    /******************************Deploy badge contract from entered user information************/
     const onSubmitHandler = () => {
+        
         console.log("inside handler")
        // e.preventDefault();
         let address = "";
