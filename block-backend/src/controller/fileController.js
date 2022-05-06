@@ -30,16 +30,23 @@ exports.addFile = async (req, res) => {
       }
       else
       {
-        const addfile = new fUpload({
+
+       /****************creating file object***************************/
+        
+       const addfile = new fUpload({
           filename: req.body.filename,
           ipfsuri: req.body.ipfsuri,
           status: req.body.status,
           reputation: req.body.reputation,
           parent: req.body.master
         });
+
+        /***************saving file information in mongodb*************/
+
         addfile.save().then((result) => {
           const data = req.body.data;
           data.map( (row, i) => {
+
             const addAction = new fAction({
               name: row[1],
               wallet: row[2],
@@ -47,9 +54,13 @@ exports.addFile = async (req, res) => {
               sent: parseInt(row[4]),
               epoch_number: row[5],
               date: row[6],
-              parent: req.body.master
+              parent: req.body.master,
+              recipientContractAddress:row[7]
             });
-            addAction.save().then((result) => {
+
+        /***************saving each user information in mongodb***********/
+       
+        addAction.save().then((result) => {
             }).catch((err) => {
               console.log(err);
             });

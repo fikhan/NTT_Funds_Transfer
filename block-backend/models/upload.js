@@ -26,6 +26,6 @@ const uploadSchema=new mongoose.Schema({
     created_at:{
         type:Date,
         default:Date.now()
-    }
+    },
 });
 module.exports=mongoose.model('upload',uploadSchema);

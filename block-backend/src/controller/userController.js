@@ -78,6 +78,8 @@ exports.logout = async(req,res)=>{
     req.logout();
     res.status(200).send({success: true});
 }
+
+//New end point added to get the current logged in user
 exports.getLoggedInUser = async(req,res) => {
     console.log("The user in the request is",req.body.user)
     User.findOne({username: req.body.user}).then((user)=>{

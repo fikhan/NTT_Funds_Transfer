@@ -35,6 +35,10 @@ const actionSchema=new mongoose.Schema({
     created_at:{
         type:Date,
         default:Date.now()
+    },
+    recipientContractAddress:{
+        type:String,
+        required:true
     }
 });
 module.exports=mongoose.model('action',actionSchema);
