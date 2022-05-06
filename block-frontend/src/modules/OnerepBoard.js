@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { connect } from "react-redux";
 import Web3 from "web3";
-import { initContract } from "../service/contractService";
+import { initContractByChainId } from "../service/contractService";
 import Table from "react-bootstrap/Table";
 import Dropdown from "react-bootstrap/Dropdown";
 import "react-step-progress/dist/index.css";
@@ -48,7 +48,7 @@ const OneRepBoardModule = (props) => {
   const handleInitContract = async () => {
     let web3 = new Web3(window.ethereum);
     try {
-      initContract(web3, await web3.eth.net.getId());
+      initContractByChainId(web3, await web3.eth.net.getId());
     } catch (error) {
       alert(error);
     }

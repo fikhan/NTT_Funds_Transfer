@@ -491,24 +491,30 @@
 // };
 // const mapStoreToProps = ({ userAction }) => ({});
 // export default connect(mapStoreToProps, null)(OneRepFileModule);
+import { useWeb3React } from '@web3-react/core';
+import { Web3Provider } from '@ethersproject/providers';
 import React, { useState, useRef, useEffect } from "react";
+import { BigNumber, Signer } from "ethers";
+//import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { connect } from "react-redux";
 import Table from "react-bootstrap/Table";
 import Modal from "react-bootstrap/Modal";
 import StepProgressBar from "react-step-progress";
 import UploadService from "../service/upload-files.service";
 // import { FileUploader } from "react-drag-drop-files";
+import { ABI, TESTNET_ADDRESS, MAINNET_ADDRESS,bytecode, ABI2 } from "../shared/constants";
 import Papa from "papaparse";
 import { create, CID, IPFSHTTPClient } from "ipfs-http-client";
 import axios from "axios";
 import $ from "jquery";
 import ReactDOMServer from "react-dom/server";
 import "react-step-progress/dist/index.css";
-import { determineAddress } from "../service/contractService";
+import { determineAddress, initContractByAddress } from "../service/contractService";
 import Web3 from "web3";
 import { ethers } from "ethers";
 import { getMintApprovalSignature } from "../service/utils";
 const { SERVER_URL, LOCAL_URL } = require("../conf");
+
 
 const OneRepFileModule = (props) => {
   // let ipfs = IPFSHTTPClient | undefined;
@@ -561,24 +567,53 @@ const OneRepFileModule = (props) => {
 
   const [step, setStep] = useState(0);
 
+  const [badgeaddress,setBadgeAddress] = useState('')
+  const [badgecontract,setBadgeContract] = useState(null)
   let web3 = null;
+  //let badgeaddress = '';
+  //let badgecontract = '';
 
-  const InitWeb3 = async () => {
+  const InitWeb3 = async (contractAddress) => {
     if (window.ethereum) {
       web3 = new Web3(window.ethereum);
       getMintApprovalSignature(
         await web3.eth.net.getId(),
         8,
         20,
-        "0x5B38Da6a701c568545dCfcB03FcB875f56beddC4"
-      ).then(console.log);
+        contractAddress
+      ).then(console.log("i am inside"));
     }
   };
 
-  useEffect(() => {
-  //  InitWeb3();
-  }, []);
+//   useEffect(() => {
 
+//     console.log("logged in user",localStorage.getItem("username"));
+//     let username = localStorage.getItem("username");
+   
+
+//     axios.post(SERVER_URL + "/users/loggedinuser",{
+      
+//       user: username
+ 
+//     }).then((response) =>{
+
+//    console.log("The logged in user is", JSON.stringify(response))
+//    let badgeadd = response.data.badgeAddress;
+//    console.log("The badge address of the user is", badgeadd)
+   
+//    const provider = new ethers.providers.Web3Provider(window.ethereum)
+//   // let badgecontract = initContractByAddress(web3,badgeaddress)
+//   //   let badgecontract = initContractByAddress(web3,badgeaddress,provider)
+//    let badgecont = new ethers.Contract(badgeadd,ABI,provider);
+//    setBadgeContract(badgecont)
+//    setBadgeAddress(badgecont.address)
+//    console.log("Badge Contract Instance Address is", badgeaddress);
+//  })
+  //  InitWeb3();
+ // }, []);
+
+
+ 
   useEffect(() => {
     if (
       localStorage.getItem("wallet") == "" ||
@@ -599,8 +634,18 @@ const OneRepFileModule = (props) => {
       }
     }
   }, [step]);
+  
+  let badgeadd = '';
+  let badgecont = '';
 
-  const handleSubmit = () => {
+  
+
+
+  
+  const handleSubmit = async () => {
+ 
+    
+    
     setShow(false);
     setTotalMint(reputation);
     console.log("Inside submit")
@@ -610,14 +655,139 @@ const OneRepFileModule = (props) => {
     console.log("The username is", username)
     axios.post(SERVER_URL + "/users/loggedinuser",{
          user: username
-    }).then((response) =>{
-      console.log("The logged in user is", JSON.stringify(response))
-    })
-    values.map((v) => {
+    }).then(async (response) =>{
 
-      console.log("Value :",v)
+      console.log("The logged in user is", JSON.stringify(response));
+      badgeadd = response.data.badgeAddress;
+      console.log("The badge address of the user is", response.data.badgeAddress)
+      const prov = new ethers.providers.Web3Provider(window.ethereum)
+      badgecont = new ethers.Contract(badgeadd,ABI,prov);
+      console.log("Badge Contract Instance Address in Handle Submit is", badgecont.address);
+      let wallet = localStorage.getItem('wallet')
+      console.log("The wallet is",wallet)
+      //let reccont;
+      let recipientcontractadd;
+      let tokenamount;
+      // let account0,account1,account2;
     
+      // [account0, account1, account2] = await ethers.getSigners();
+      // console.log("account 0", await account0.getAddress());
+      // console.log("account 1",await account1.getAddress());
+      // console.log("account 2 ",await account2.getAddress());
+
+  const executeMinting = async (value) => {
+      
+    const provider = new ethers.providers.Web3Provider(window.ethereum)
+          const signer = provider.getSigner();
+      console.log("Value :",value);
+      console.log("Recieved Column",value[3]);
+      recipientcontractadd = value[7];
+      tokenamount = value[3];
+      const provider2 = new ethers.providers.Web3Provider(window.ethereum)
+      reccont = new ethers.Contract(recipientcontractadd,ABI2,provider2);
+      console.log("Before pass", reccont.address.toString());
+      console.log("The signer address", signer.address)
+      console.log("The balance of recieved contract before",await badgecont.balanceOf(reccont.address, 1).then((resp)=>{ console.log("resp from before",resp)}))
+      await badgecont.connect(signer).mintToContract(reccont.address,1,tokenamount,"https://your-domain-name.com/credentials/tokens/1",[]).then(async (resp)=>{
+            console.log("Badge Address " + badgecont.address + "Reciever Address" + reccont.address)
+            console.log("The balance of recieved contract After",badgecont.balanceOf(reccont.address, 1))
+          });
+      //console.log("The balance of recieved contract After",badgecont.balanceOf(reccont.address, 1))
+  }
+      // for(let i = 0; i <= values.length;i++)
+      // {
+      //    executeMinting(values[i]);
+      // }
+    
+      var reccont = new Array(values.length);
+      
+      for(let j=0; j < reccont.length;j++){
+      
+        const provider2 = new ethers.providers.Web3Provider(window.ethereum)
+        console.log("The value",values[j][7]);
+         reccont[j] = new ethers.Contract(values[j][7],ABI2,provider2);
+         console.log("Before pass", reccont[j].address.toString());
+
+      }
+
+       for(let g=0; g < reccont.length;g++){
+        
+         console.log("The balance of recieved contract before",await badgecont.balanceOf(reccont[g].address, 1).then((resp)=>{ console.log("resp from before",resp)}))
+
+       }
+      
+       const provider = new ethers.providers.Web3Provider(window.ethereum)
+       const signer = provider.getSigner();
+
+       for(let i = 0; i < values.length;i++)
+       {
+        
+         console.log("Before pass", reccont[i].address.toString());
+         tokenamount= values[i][3]
+         await badgecont.connect(signer).mintToContract(reccont[i].address,1,tokenamount,"https://your-domain-name.com/credentials/tokens/1",[]).then(async (resp)=>{
+             console.log("Badge Address " + badgecont.address + "Reciever Address" + reccont[i].address)
+             console.log("The balance of recieved contract After",badgecont.balanceOf(reccont[i].address, 1))
+           });
+       }
+
+
+
+
+
+
+
+    //   values.map(async (v) => {
+        
+    //     executeMinting(v)
+    //     console.log("The recipient address", recipientcontractadd);
+    //     console.log("The badge address inside values", badgecont.address);
+    //     console.log("The wallet address is ", wallet);
+       
+        
+    //   // const provider2 = new ethers.providers.Web3Provider(window.ethereum)
+    //   // reccont = new ethers.Contract(recipientcontractadd,ABI2,provider2);
+    //   // console.log("Before pass", reccont.address.toString());
+    //   // console.log("The signer address", signer.address)
+    //   // console.log("The balance of recieved contract before",badgecont.balanceOf(reccont.address, 1))
+    //   // badgecont.connect(signer).mintToContract(reccont.address,1,tokenamount,"https://your-domain-name.com/credentials/tokens/1",[])/*.then(async (resp)=>{
+    //   //       console.log("Badge Address " + badgecont.address + "Reciever Address" + reccont.address)
+    //   //       console.log("The balance of recieved contract After",badgecont.balanceOf(reccont.address, 1))
+    //   //     });*/
+        
+    //    // InitWeb3(badgecont.address);
+    //   //  const provider = new ethers.providers.JsonRpcProvider(
+    //   //   "https://api.s0.b.hmny.io"
+    //   // );
+    
+    //   //  const signer = provider.getSigner(wallet)//.then((res)=>{console.log("inside the result promise",res)});
+    //   // console.log("The signer",signer.getAddress().then((res)=>{console.log("res inside",res)}));
+     
+      
+          
+
+    //  // if(reccont.address === "0x0D0033F64bC8AEb42D279e4326824377d27C43bc")
+    //   //{
+    //   //  console.log("I am inside v")
+    //   //  console.log("tokenmount", tokenamount)
+       
+         
+    //     //const signer = (new ethers.providers.Web3Provider(window.ethereum)).getSigner()
+       
+    //    // window.ethereum
+    //     //.request({ method: "eth_requestAccounts" })
+    //     //.then(async (res) => {
+         
+    //       //console.log("the signer",res[0]);
+          
+    //     //})
+       
+
+    //   })
     })
+   
+    // 
+
+    
     
     axios
       .post(SERVER_URL + "/files/add", {

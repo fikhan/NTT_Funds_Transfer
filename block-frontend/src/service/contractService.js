@@ -1,6 +1,7 @@
 import { checkResultErrors } from "ethers/lib/utils";
 import { ABI, TESTNET_ADDRESS, MAINNET_ADDRESS,bytecode } from "../shared/constants";
 import { getMintBatchApprovalSignature } from "./utils";
+import { ethers } from "ethers";
 
 let contract = null;
 let deployedContractAddress = null;
@@ -65,16 +66,21 @@ export const deployContract = async (web3) => {
 // // return deployContractAddress
 
 // }
-export const initContract = async (web3, chainId) => {
+export const initContractByChainId = async (web3, chainId) => {
   contract = new web3.eth.Contract(ABI, await determineAddress(chainId));
   return contract;
 };
-
-export const initContractAddress = async (web3) => {
-  contract = new web3.eth.Contract(ABI, await determineAddress(1666700000));
-
-  return contract.options.address;
+export const initContractByAddress = async (web3, address, provider) => {
+  console.log("before calling address")
+  contract = new ethers.Contract(address,ABI,provider)
+  return contract;
 };
+
+// export const initContractAddress = async (web3) => {
+//  // contract = new web3.eth.Contract(ABI, await determineAddress(1666700000));
+ 
+//   return contract.options.address;
+// };
 
 export const getContractInstance = async () => {
   if (contract) {

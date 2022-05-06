@@ -31,6 +31,7 @@ export const getMintApprovalSignature = async ({
   amount,
   address,
 }) => {
+  console.log("I am inside get approval")
   const domain = getDomain(chainId, TESTNET_ADDRESS);
 
   const provider = new ethers.providers.JsonRpcProvider(
