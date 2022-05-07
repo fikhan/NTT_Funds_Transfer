@@ -43,6 +43,7 @@ const HomePageModule = (props) => {
           localStorage.setItem("wallet", account);
           localStorage.setItem("isAdmin", response.data.isAdmin || false);
           history.push(response.data.url);
+          
         }
       });
   };
