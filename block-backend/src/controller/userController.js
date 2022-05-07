@@ -56,14 +56,25 @@ exports.login = async(req, res) => {
         } else {
             if (user)
             {
+                if(user.status == true){
                 res.json({
                     success: true,
                     username: user.username,
                     isAdmin: user.isAdmin,
                     url: '/onerepboard'
                 });
+              } else {
+
+                res.json({
+                    success: true,
+                    username: "",
+                    isAdmin: false,
+                    url: '/walletconnect'
+                });
+
+              }
             }
-            else
+            else 
                 res.json({
                     success: true,
                     username: "",
