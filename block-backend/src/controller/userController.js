@@ -94,36 +94,78 @@ exports.getUserList = async(req, res) => {
 }
 
 exports.getOneRepBoard  = async(req, res) => {
-    console.log("enter in api")
     const result = {};
-    console.log("request master",req.body.master)
-    console.log("request sort",req.body.sort)
     fAction.aggregate([{ $match : { parent : req.body.master }}, {$group:{_id:"$wallet", name : { $first: '$name' }, sum:{$sum: "$received"}}}, {$sort: req.body.sort}]).then((users) => {
         result.users = users;
-        console.log("users list", users)
         User.findOne({wallet: req.body.master}).then((user) => {
-            console.log("user name" , user)
             User.findOne({wallet: req.body.master}).then((user) => {
-                console.log("wallet ", user)
-                result.isAdmin = user.isAdmin;
-                if (user.isAdmin == false)  
-                {
-                    console.log("inside if")
-                    res.status(200).send(result);
-                }
-                else{
-                    // logic to get all the DAO
-                    console.log("inside else if Admin")
-                    User.find().then((users) => {
-                        console.log("Users", users)
-                            res.status(200).send(users);
-                    });
-                }
-               // res.status(200).send(result);
+                //result.isAdmin = user.isAdmin;
+                // if (user.isAdmin == false)  
+                // {
+                    
+                // }
+                res.status(200).send(result);
             });
         });
     });
 }
+/*******************************Get DAO data********************** */
+exports.getDaoData = async(req,res)=> {
+
+    User.findOne({wallet: req.body.master}).then((user) => {
+    
+                if (user.isAdmin == false)  
+                 {
+                     console.log("inside if")
+                     console.log("The user",JSON.stringify(user));
+                     res.status(200).send(user);
+                 }
+                 else {
+
+                    console.log("inside else")
+                    User.find().then((users) => {
+                        
+                    console.log("The users", JSON.stringify(users));
+                    res.status(200).send(users);
+               
+                    });
+                 }
+    
+    });
+}
+
+
+// exports.getOneRepBoard  = async(req, res) => {
+//     console.log("enter in api")
+//     const result = {};
+//     console.log("request master",req.body.master)
+//     console.log("request sort",req.body.sort)
+//     fAction.aggregate([{ $match : { parent : req.body.master }}, {$group:{_id:"$wallet", name : { $first: '$name' }, sum:{$sum: "$received"}}}, {$sort: req.body.sort}]).then((users) => {
+//         result.users = users;
+//         console.log("users list", users)
+//         User.findOne({wallet: req.body.master}).then((user) => {
+//             console.log("user name" , user)
+//             User.findOne({wallet: req.body.master}).then((user) => {
+//                 console.log("wallet ", user)
+//                 result.isAdmin = user.isAdmin;
+//                 if (user.isAdmin == false)  
+//                 {
+//                     console.log("inside if")
+//                     res.status(200).send(result);
+//                 }
+//                 else{
+//                     // logic to get all the DAO
+//                     console.log("inside else if Admin")
+//                     User.find().then((users) => {
+//                         console.log("Users", users)
+//                             res.status(200).send(users);
+//                     });
+//                 }
+//                // res.status(200).send(result);
+//             });
+//         });
+//     });
+// }
 
 exports.getSelOpList = (req, res) => {
     const result = {};
@@ -138,12 +180,15 @@ exports.update = async (req, res) => {
         var puser = user;
         if (req.body._id == '')
         {
+            console.log("Inside if req.body._id")
             if (user)
             {
+                console.log("inside if ETH address");
                 return res.status(200).send({error: "ETH address duplicated!", success: false});
             }
             else
             {
+                console.log("inside else puser", JSON.stringify(req.body));
                 puser = new User({
                     username: req.body.username,
                     parent: req.body.master,
@@ -151,7 +196,8 @@ exports.update = async (req, res) => {
                     badge: req.body.badge,
                     dao: req.body.dao,
                     isAdmin: req.body.isAdmin,
-                    status: req.body.status
+                    status: req.body.status,
+                    badgeAddress: req.body.badgeAddress
                 });
             }
         }
@@ -159,10 +205,12 @@ exports.update = async (req, res) => {
         {
             if (!puser)
             {
+                console.log("if !puser");
                 return res.status(200).send({error: "This accout does not exist!", success: false});
             }
             else
             {
+                console.log("else puser setting");
                 puser.username = req.body.username;
                 puser.parent = req.body.master;
                 puser.wallet = req.body.wallet;
@@ -170,13 +218,17 @@ exports.update = async (req, res) => {
                 puser.dao = req.body.dao;
                 puser.isAdmin = req.body.isAdmin;
                 puser.status = req.body.status;
+                badgeAddress = req.body.badgeAddress
             }
         }
+
         puser.save().then((result) => {
+            console.log("req.body.master", req.body.master);
             User.find({parent: req.body.master}).then((users) => {
                 res.status(200).send({users: users, success: true});
             });
         }).catch((err) => {
+            console.log(JSON.stringify(err));
             res.status(200).send({success: false, error: "Error Occured!"});
         });
     });

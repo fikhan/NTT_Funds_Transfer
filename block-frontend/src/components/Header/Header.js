@@ -7,6 +7,7 @@ const Header = (props) => {
 
     let connected = false;
     let installed = false;
+    let isAdmin = localStorage.getItem('isAdmin');
 
     function isMetaMaskInstalled() {
         return Boolean(window.ethereum && window.ethereum.isMetaMask);
@@ -86,7 +87,9 @@ const Header = (props) => {
                             </Link>
                         </li>
                         <li className="zl_page_sidebar_items" title="onerepfile">
-                            <Link to={'/onerepfile'} className="zl_page_sidebar_link position-relative">
+                           {
+                               isAdmin == "false" ?
+                            <Link   to={'/onerepfile'}  className="zl_page_sidebar_link position-relative">
                                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <rect x="0.10527" y="0.10527" width="4" height="4" rx="1.4" fill="#828CAE" />
                                     <rect x="0.10527" y="6.10527" width="4" height="4" rx="1.4" fill="#828CAE" />
@@ -95,6 +98,18 @@ const Header = (props) => {
                                 </svg>
                                 <span className="zl_pagesidebar_text">ONERep Files</span>
                             </Link>
+                             : 
+                             <Link   to="#"  className="zl_page_sidebar_link position-relative">
+                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="0.10527" y="0.10527" width="4" height="4" rx="1.4" fill="#828CAE" />
+                                    <rect x="0.10527" y="6.10527" width="4" height="4" rx="1.4" fill="#828CAE" />
+                                    <rect x="6.10527" y="0.10527" width="4" height="4" rx="1.4" fill="#828CAE" />
+                                    <rect x="6.10527" y="6.10527" width="7" height="7" rx="1.4" fill="#828CAE" />
+                                </svg>
+                                <span className="zl_pagesidebar_text">ONERep Files</span>
+                            </Link>
+
+                            }
                         </li>
                         <li className="zl_page_sidebar_items" title="onerepboard">
                             <Link to={'/onerepboard'} className="zl_page_sidebar_link position-relative">
