@@ -34,29 +34,11 @@ const WalletConnectModule = (props) => {
                tokenaddress[0].value = address1
               console.log("response address",address1)
            });
-       //    console.log("Contract Address", address)
        
           } catch (error) {
             alert(error);
           }
-       // console.log("wallet",e.target.wallet.value)
-       // console.log("username",e.target.username.value)
-       // console.log("dao",e.target.dao.value)
-
-        // axios
-        // .post(SERVER_URL + "/users/register", {
-        //     username: username1,
-        //     wallet: wallet1,
-        //     badge: badge1,
-        //     dao: dao1,
-        // },{
-        //     headers:{
-        //         'Access-Control-Allow-Origin':"*"
-        //     }
-        // })
-        // .then((response) => {
-        //   console.log("Response from backend",response)
-        // });
+ 
    
     }
 

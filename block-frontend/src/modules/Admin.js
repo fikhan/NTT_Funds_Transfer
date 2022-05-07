@@ -17,7 +17,8 @@ const AdminModule = (props) => {
         badge: '',
         dao: '',
         isAdmin: false,
-        status: false
+        status: false,
+        badgeAddress : '0x0000000000000000000000000000000000000000'
     }
     const [show, setShow] = useState(false);
     const [admin, setSAdmin] = useState(false);

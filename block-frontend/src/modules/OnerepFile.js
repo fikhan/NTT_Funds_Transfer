@@ -142,20 +142,26 @@ const executeMinting = async (value) => {
     console.log("logged in user",localStorage.getItem("username"))
     let username = localStorage.getItem("username")
     console.log("The username is", username)
+
+    /********************************Get Information of the current logged in user *******************/
     axios.post(SERVER_URL + "/users/loggedinuser",{
          user: username
     }).then(async (response) =>{
 
       console.log("The logged in user is", JSON.stringify(response));
       badgeadd = response.data.badgeAddress;
+
+      /*******************************Creating Badge Contract Instance***************/
       console.log("The badge address of the user is", response.data.badgeAddress)
       const prov = new ethers.providers.Web3Provider(window.ethereum)
       badgecont = new ethers.Contract(badgeadd,ABI,prov);
-      console.log("Badge Contract Instance Address in Handle Submit is", badgecont.address);
+      console.log("Badge Contract Instance Address is", badgecont.address);
       let wallet = localStorage.getItem('wallet')
       console.log("The wallet is",wallet);
       let recipientcontractadd;
       let tokenamount;
+
+      /************Preparing an array of recipient contracts**********/
       var reccont = new Array(values.length);
       
       /***********parsing reciever contract address and creating an instanace for each user in the file */

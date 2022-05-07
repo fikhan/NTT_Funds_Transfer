@@ -12,23 +12,70 @@ const OneRepBoardModule = (props) => {
   const [show, setShow] = useState(false);
   const [selectData, setSelectData] = useState([]);
   const [boardData, setBoardData] = useState([]);
+  const [selectedV, setSelectedV] = useState('');
   const [sort_name, setSortName] = useState(1);
   const [sort_id, setSortId] = useState(1);
   const [sort_sum, setSortSum] = useState(1);
   const [sortOption, setSortOption] = useState({ name: 1 });
+  const [daodata,setDaoData] = useState([]);
 
-  const getOneRepBoard = () => {
-    axios
+  const getOneRepBoard = (value) => {
+
+    if(daodata.length > 1)
+    {
+      daodata.map((m)=>{
+        if(m.dao == value)
+        {
+          console.log("inside condition " + m.dao + "wallet" + m.wallet)
+          axios
       .post(SERVER_URL + "/getOneRepBoard", {
-        master: localStorage.getItem("wallet"),
+        master: m.wallet,
         sort: sortOption,
       })
       .then((response) => {
         console.log("Response from backend",response)
-        setBoardData(response.data.users);
-        console.log("Board data", boardData)
-      });
+        setBoardData(response.data.users)   
+         });
+
+        }
+      })
+    }
+    else
+    {
+      axios
+      .post(SERVER_URL + "/getOneRepBoard", {
+        master: daodata.wallet,
+        sort: sortOption,
+      })
+      .then((response) => {
+        console.log("Response from backend",response)
+        setBoardData(response.data.users)   
+         });
+    }
+    // axios
+    //   .post(SERVER_URL + "/getOneRepBoard", {
+    //     master: localStorage.getItem("wallet"),
+    //     sort: sortOption,
+    //   })
+    //   .then((response) => {
+    //     console.log("Response from backend",response)
+    //     setBoardData(response.data.users)   
+    //   });
+
+    
   };
+
+  useEffect(() => {
+    console.log("Dao Data",daodata)
+  }, [daodata])
+
+  useEffect(() => {
+    console.log("BoardData",boardData)
+  }, [boardData])
+
+  useEffect(()=>{
+     console.log("selected Value",selectedV)
+  }, [selectedV])
 
   const getSelOpList = () => {
     axios
@@ -36,13 +83,14 @@ const OneRepBoardModule = (props) => {
         master: localStorage.getItem("wallet"),
       })
       .then((response) => {
+        console.log("The response in inside getSelOpList",response);
         setSelectData(response.data);
       });
   };
 
-  const handleDropDown = () => {
-    console.log("Handle Drop Down")
-    getOneRepBoard();
+  const handleDropDown = (e) => {
+    console.log("Handle Drop Down",e)
+    getOneRepBoard(e);
   };
 
   const handleInitContract = async () => {
@@ -55,7 +103,15 @@ const OneRepBoardModule = (props) => {
   };
 
   useEffect(() => {
-    handleInitContract();
+   // handleInitContract();
+   axios.post(SERVER_URL + "/getDaoData", {
+    master: localStorage.getItem("wallet")
+  }).then((resp)=>{
+      setDaoData(resp.data) 
+    });
+   
+  
+   
   }, []);
 
   useEffect(() => {
@@ -81,14 +137,22 @@ const OneRepBoardModule = (props) => {
       </div>
       <br />
       <br />
-      <Dropdown>
+      <Dropdown onSelect={handleDropDown}>
         <Dropdown.Toggle variant="dropdown" id="dropdown-basic">
           Select DAO
         </Dropdown.Toggle>
         <Dropdown.Menu>
-          <Dropdown.Item onClick={handleDropDown}>Action</Dropdown.Item>
+          {
+
+          (daodata.length >1) ? daodata.map((m)=>{
+            return <Dropdown.Item eventKey={m.dao}>{m.dao}</Dropdown.Item>          
+         }): <Dropdown.Item eventKey={daodata.dao}>{daodata.dao}</Dropdown.Item>
+         
+  
+          }
+          {/* <Dropdown.Item onClick={handleDropDown}>Action</Dropdown.Item>
           <Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
-          <Dropdown.Item href="#/action-3">Something else</Dropdown.Item>
+          <Dropdown.Item href="#/action-3">Something else</Dropdown.Item> */}
         </Dropdown.Menu>
       </Dropdown>
       <br />
