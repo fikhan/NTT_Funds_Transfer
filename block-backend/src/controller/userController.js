@@ -56,19 +56,22 @@ exports.login = async(req, res) => {
         } else {
             if (user)
             {
+                console.log("User in login",user)
                 if(user.status == true){
                 res.json({
                     success: true,
                     username: user.username,
                     isAdmin: user.isAdmin,
+                    parent: user.parent,
                     url: '/onerepboard'
                 });
               } else {
-
+                console.log("User in login 1",user)
                 res.json({
                     success: true,
                     username: "",
                     isAdmin: false,
+                    parent:"",
                     url: '/walletconnect'
                 });
 
@@ -98,6 +101,15 @@ exports.getLoggedInUser = async(req,res) => {
         res.status(200).send(user)
     })
 }
+
+exports.getLoggedInUserByWallet = async(req,res) => {
+    console.log("The user in the request is",req.body.wallet)
+    User.findOne({wallet: req.body.wallet}).then((user)=>{
+        console.log("The user is", user)
+        res.status(200).send(user)
+    })
+}
+
 exports.getUserList = async(req, res) => {
     User.find({parent: req.body.master}).then((users) => {
         res.status(200).send(users);

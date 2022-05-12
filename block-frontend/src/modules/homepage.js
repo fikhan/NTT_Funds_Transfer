@@ -42,6 +42,8 @@ const HomePageModule = (props) => {
           localStorage.setItem("username", response.data.username);
           localStorage.setItem("wallet", account);
           localStorage.setItem("isAdmin", response.data.isAdmin || false);
+          console.log("parent", response.data.parent);
+          localStorage.setItem("parent",response.data.parent)
           history.push(response.data.url);
           
         }

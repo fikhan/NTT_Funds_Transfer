@@ -184,17 +184,27 @@ const executeMinting = async (value) => {
        const provider = new ethers.providers.Web3Provider(window.ethereum)
        const signer = provider.getSigner();
 
+       const toBN = (units, decimalPlaces) => ethers.utils.parseUnits(units, 18);
       /***************************Mint to each individual Recipient Contract***********/
        for(let i = 0; i < values.length;i++)
        {
+
          tokenamount= values[i][3];
+         tokenamount = toBN(tokenamount);
          console.log("Amount passed", tokenamount);
          console.log("Address passed",reccont[i].address);
          await badgecont.connect(signer).mintToContract(reccont[i].address,1,tokenamount,"https://your-domain-name.com/credentials/tokens/1",[]).then(async (resp)=>{
              console.log("Badge Address " + badgecont.address + "Reciever Address" + reccont[i].address)
-             console.log("The balance of recieved contract After",badgecont.balanceOf(reccont[i].address, 1))
+            // console.log("The balance of recieved contract After",badgecont.balanceOf(reccont[i].address, 1))
            });
        }
+
+       for(let g=0; g < reccont.length;g++){
+        
+        console.log("The balance of recieved contract after",await badgecont.balanceOf(reccont[g].address, 1).then((resp)=>{ console.log("resp from before",resp)}))
+
+      }
+
     })
      
     /****************************adding information of uploaded files in the mongodb */
@@ -214,11 +224,21 @@ const executeMinting = async (value) => {
   };
 
   const getOneRepFile = () => {
-    axios
+    if(localStorage.getItem("parent")=="")
+        {
+          axios
       .post(SERVER_URL + "/files", { master: localStorage.getItem("wallet") })
       .then((response) => {
         setRepFiles(response.data);
       });
+        }
+        else {
+    axios
+      .post(SERVER_URL + "/files", { master: localStorage.getItem("parent") })
+      .then((response) => {
+        setRepFiles(response.data);
+      });
+    }
   };
 
   getOneRepFile();

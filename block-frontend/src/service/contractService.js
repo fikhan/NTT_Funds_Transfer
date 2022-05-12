@@ -21,6 +21,7 @@ const determineAddress = async (chainId) => {
   }
 };
 
+/*******************************Deploy badge contract******************/
 export const deployContract = async (web3) => {
 
   console.log("Deploying....");

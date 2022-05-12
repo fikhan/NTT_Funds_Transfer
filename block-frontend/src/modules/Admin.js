@@ -41,23 +41,45 @@ const AdminModule = (props) => {
         }
     }
 
-    const handleSave = () => {
-        curUser.isAdmin = admin;
+    const handleSave = async () => {
+ 
+        curUser.isAdmin = localStorage.getItem('isAdmin');
         curUser.status = enable;
-        axios.post(SERVER_URL + '/users/update', { ...curUser, master: localStorage.getItem("wallet") }).then(response => {
+        
+       await axios.post(SERVER_URL + '/users/loggedinuserbywallet', {wallet: localStorage.getItem("wallet")}).then(response =>{
+            console.log("The fetched user", response);
+            curUser.badgeAddress = response.data.badgeAddress;
+            curUser.dao = response.data.dao;
+            curUser.badge = response.data.badge;
+            console.log("current user", curUser)
+        })
+
+        await axios.post(SERVER_URL + '/users/update', { ...curUser, master: localStorage.getItem("wallet") }).then(response => {
+            
+           console.log("response", response);
+
             if (response.data.success == true)
                 setUsers(response.data.users);
             else
                 alert(response.data.error);
         });
+        window.location.reload(true);
     }
 
     const borderRadiusStyle = { borderRadius: 2, height: 40,}
    
     const getContributors = () => {
+        if(localStorage.getItem("parent")=="")
+        {
         axios.post(SERVER_URL + '/users', { master: localStorage.getItem("wallet") }).then(response => {
             setUsers(response.data);
         });
+       }
+       else {
+        axios.post(SERVER_URL + '/users', { master: localStorage.getItem("parent") }).then(response => {
+            setUsers(response.data);
+        });
+       }
     }
 
     useEffect(() => {
@@ -135,7 +157,10 @@ const AdminModule = (props) => {
                                 </Form.Group>
                             </div>
                             <div className="col-md-6">
-                                <Form.Label className="text-muted-dark">Are They Admin?</Form.Label>
+                                {/* <Form.Label className="text-muted-dark">Are They Admin?</Form.Label> */}
+                               {/* {
+                                localStorage.getItem('isAdmin') == "false" && (
+                                [<Form.Label className="text-muted-dark">Are They Admin?</Form.Label>,
                                 <ToggleButton
                                     name="isAdmin"
                                     value={ false|| admin }
@@ -145,7 +170,9 @@ const AdminModule = (props) => {
                                     trackStyle={borderRadiusStyle}
                                     onToggle={(value) => {
                                         setSAdmin(!value);
-                                    }} />
+                                    }} />])
+                                } */}
+                                    
                             </div>
                             <div className="col-md-6">
                                 <Form.Label className="text-muted-dark">Enable</Form.Label>
@@ -157,11 +184,12 @@ const AdminModule = (props) => {
                                     thumbStyle={borderRadiusStyle}
                                     trackStyle={borderRadiusStyle}
                                     onToggle={(value) => {
+                                        
                                         setEnable(!value);
                                     }} />
                             </div>
                             <div className="col-12 text-center">
-                                <div className="zl_securebackup_btn"><button onClick={()=>{handleSave();}} className="mx-auto"><FaRegSave/><span className="ml-2">Save</span></button></div>
+                                <div className="zl_securebackup_btn"><button type="button" onClick={()=>{handleSave();}} className="mx-auto"><FaRegSave/><span className="ml-2">Save</span></button></div>
                             </div>
                         </Form>
                     </div>
