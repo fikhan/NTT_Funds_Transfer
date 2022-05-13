@@ -15,11 +15,12 @@ import axios from "axios";
 import $ from "jquery";
 import ReactDOMServer from "react-dom/server";
 import "react-step-progress/dist/index.css";
-import { determineAddress, initContractByAddress } from "../service/contractService";
+import { determineAddress, initContractByAddress, deployContract, deployNewContract } from "../service/contractService";
 import Web3 from "web3";
 import { ethers } from "ethers";
 import { getMintApprovalSignature } from "../service/utils";
 const { SERVER_URL, LOCAL_URL } = require("../conf");
+
 
 
 const OneRepFileModule = (props) => {
@@ -167,16 +168,30 @@ const executeMinting = async (value) => {
       /***********parsing reciever contract address and creating an instanace for each user in the file */
       for(let j=0; j < reccont.length;j++){
       
-        const provider2 = new ethers.providers.Web3Provider(window.ethereum)
-        console.log("The value",values[j][7]);
-         reccont[j] = new ethers.Contract(values[j][7],ABI2,provider2);
-         console.log("Before pass", reccont[j].address.toString());
+        let web3 = new Web3(window.ethereum);
+        try {
+         await deployNewContract(web3).then((response) =>{
+               console.log("Response new contract",response)
+               reccont[j] = response;
+            //   let tokenaddress = document.getElementsByName("tokenaddress")
+            //   tokenaddress[0].value = address1
+            
+          });
+      
+         } catch (error) {
+           alert(error);
+         }
+        // const provider2 = new ethers.providers.Web3Provider(window.ethereum)
+        // console.log("The value",values[j][7]);
+        //  reccont[j] = new ethers.Contract(values[j][7],ABI2,provider2);
+        //  console.log("Before pass", reccont[j].address.toString());
 
       }
-
+      
+      console.log("Before balance for loop");
        for(let g=0; g < reccont.length;g++){
         
-         console.log("The balance of recieved contract before",await badgecont.balanceOf(reccont[g].address, 1).then((resp)=>{ console.log("resp from before",resp)}))
+         console.log(await badgecont.balanceOf(reccont[g], 1).then((resp)=>{ console.log("resp balance before",resp)}))
 
        }
       
@@ -185,23 +200,27 @@ const executeMinting = async (value) => {
        const signer = provider.getSigner();
 
        const toBN = (units, decimalPlaces) => ethers.utils.parseUnits(units, 18);
-      /***************************Mint to each individual Recipient Contract***********/
+      
+       console.log("Before recipient contract for loop");
+       /***************************Mint to each individual Recipient Contract***********/
        for(let i = 0; i < values.length;i++)
        {
 
          tokenamount= values[i][3];
          tokenamount = toBN(tokenamount);
          console.log("Amount passed", tokenamount);
-         console.log("Address passed",reccont[i].address);
-         await badgecont.connect(signer).mintToContract(reccont[i].address,1,tokenamount,"https://your-domain-name.com/credentials/tokens/1",[]).then(async (resp)=>{
+         console.log("Address passed",reccont[i]);
+         await badgecont.connect(signer).mintToContract(reccont[i],1,tokenamount,"https://your-domain-name.com/credentials/tokens/1",[]).then(async (resp)=>{
              console.log("Badge Address " + badgecont.address + "Reciever Address" + reccont[i].address)
             // console.log("The balance of recieved contract After",badgecont.balanceOf(reccont[i].address, 1))
            });
        }
 
+
+       console.log("Balance of recipient contract after");
        for(let g=0; g < reccont.length;g++){
         
-        console.log("The balance of recieved contract after",await badgecont.balanceOf(reccont[g].address, 1).then((resp)=>{ console.log("resp from before",resp)}))
+        console.log(await badgecont.balanceOf(reccont[g], 1).then((resp)=>{ console.log("resp balance after",resp)}))
 
       }
 

@@ -38,7 +38,7 @@ const actionSchema=new mongoose.Schema({
     },
     recipientContractAddress:{
         type:String,
-        required:true
+        required:false
     }
 });
 module.exports=mongoose.model('action',actionSchema);

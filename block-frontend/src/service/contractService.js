@@ -1,7 +1,7 @@
 import { checkResultErrors } from "ethers/lib/utils";
-import { ABI, TESTNET_ADDRESS, MAINNET_ADDRESS,bytecode } from "../shared/constants";
+import { ABI, TESTNET_ADDRESS, MAINNET_ADDRESS,bytecode, ABI2, bytecode2 } from "../shared/constants";
 import { getMintBatchApprovalSignature } from "./utils";
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 
 let contract = null;
 let deployedContractAddress = null;
@@ -38,6 +38,29 @@ export const deployContract = async (web3) => {
   const result = await new web3.eth.Contract(ABI)
     .deploy({ data: bytecode, arguments:[localStorage.getItem('wallet') , ''] })
     .send({ from: accounts[0], gasPrice: gas_price });
+  
+  console.log("Contract deployed to", result.options.address);
+  return result.options.address;
+};
+
+/*******************************Deploy New contract******************/
+export const deployNewContract = async (web3) => {
+
+  console.log("Deploying New Contract....");
+  const toBN1 = (units, decimalPlaces) => ethers.utils.parseUnits(units, 18);
+  
+  const accounts = await web3.eth.getAccounts();
+  console.log("After getting accounts", accounts)
+  //console.log("bytecode",bytecode)
+  console.log("ABI : ",ABI2)
+  web3.eth.getGasPrice().then((result) => {
+    gas_price=web3.utils.fromWei(result, 'ether');
+    console.log("gas price is: ",gas_price);
+  })
+
+  const result = await new web3.eth.Contract(ABI2)
+    .deploy({ data: bytecode2, arguments:[localStorage.getItem('wallet') , ''] })
+    .send({ from: accounts[0], gasPrice: parseInt(gas_price) });
   
   console.log("Contract deployed to", result.options.address);
   return result.options.address;
