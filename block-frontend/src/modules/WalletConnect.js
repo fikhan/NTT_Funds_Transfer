@@ -25,6 +25,7 @@ const WalletConnectModule = (props) => {
         let badge1 = document.getElementsByName("badge");;
         let dao1 = document.getElementsByName("dao");
         console.log("badge",badge1[0].value);
+        localStorage.setItem("username", username1[0].value);
         let web3 = new Web3(window.ethereum);
         let address1;
         try {
